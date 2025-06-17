@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-center">Голосование за решения</h2>
+
+<div class="alert alert-warning">
+  <ul class="mb-0">
+    <li>Каждая идея содержит несколько решений, которые вы оцениваете отдельно.</li>
+    <li>Для <strong>каждой идеи</strong> вы должны распределить <strong>ровно 5 голосов</strong> между её решениями.</li>
+    <li>Голоса ставятся с помощью звёзд: от 1 до 5, слева направо.</li>
+    <li>Нажав ✖ под звёздами, можно <strong>сбросить</strong> выбор и выставить заново.</li>
+    <li>После отправки изменить оценки <strong>нельзя</strong>.</li>
+  </ul>
+</div>
+
+{% if has_voted %}
+<div class="alert alert-info text-center">Вы уже проголосовали. Спасибо!</div>
+{% endif %}
+
+<style>
+    .star-rating {
+        direction: rtl;
+        display: inline-flex;
+        gap: 4px;
+    }
+    .star-rating input {
+        display: none;
+    }
+    .star-rating label {
+        font-size: 3rem;
+        color: #ccc;
+        cursor: pointer;
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: gold;
+    }
+</style>
+
+<form method="POST" action="{{ url_for('participant.submit_decision_votes') }}" id="decisionVoteForm">
+    <!-- Что было хорошо -->
+    <div class="mb-5">
+        <h4 class="text-success">Что было хорошо</h4>
+        {% for idea in good_ideas %}
+        <div class="card p-3 mb-3">
+            <h5>{{ idea[2] }}</h5>
+            <p>{{ idea[3] }}</p>
+            {% for d in decision_map.get(idea[0], []) %}
+            <div class="mb-3">
+                <label class="form-label"><strong>{{ d[2] }}</strong>: {{ d[3] }}</label>
+                <div class="mt-2">
+                    <div class="star-rating">
+                      {% for i in range(5, 0, -1) %}
+                      <input type="radio" name="decision_{{ d[0] }}_idea_{{ idea[0] }}" id="star_{{ d[0] }}_{{ idea[0] }}_{{ i }}" value="{{ i }}"
+                             {% if has_voted %}disabled{% endif %}>
+                      <label for="star_{{ d[0] }}_{{ idea[0] }}_{{ i }}">★</label>
+                      {% endfor %}
+                      <input type="radio" name="decision_{{ d[0] }}_idea_{{ idea[0] }}" id="star_{{ d[0] }}_{{ idea[0] }}_0" value="0" checked style="display: none;" {% if has_voted %}disabled{% endif %}>
+                    </div>
+
+                    {% if not has_voted %}
+                    <span class="text-danger mt-1 d-block reset-stars" style="cursor:pointer;" title="Сбросить" data-name="decision_{{ d[0] }}_idea_{{ idea[0] }}">✖ Сбросить</span>
+                    {% endif %}
+                  </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Что было плохо -->
+    <div class="mb-5">
+        <h4 class="text-danger">Что было плохо</h4>
+        {% for idea in bad_ideas %}
+        <div class="card p-3 mb-3">
+            <h5>{{ idea[2] }}</h5>
+            <p>{{ idea[3] }}</p>
+            {% for d in decision_map.get(idea[0], []) %}
+            <div class="mb-3" style="display:flex; flex-direction:column">
+                <label class="form-label"><strong>{{ d[2] }}</strong>: {{ d[3] }}</label>
+                <div class="mt-2">
+                    <div class="star-rating">
+                      {% for i in range(5, 0, -1) %}
+                      <input type="radio" name="decision_{{ d[0] }}_idea_{{ idea[0] }}" id="star_{{ d[0] }}_{{ idea[0] }}_{{ i }}" value="{{ i }}"
+                             {% if has_voted %}disabled{% endif %}>
+                      <label for="star_{{ d[0] }}_{{ idea[0] }}_{{ i }}">★</label>
+                      {% endfor %}
+                      <input type="radio" name="decision_{{ d[0] }}_idea_{{ idea[0] }}" id="star_{{ d[0] }}_{{ idea[0] }}_0" value="0" checked style="display: none;" {% if has_voted %}disabled{% endif %}>
+                    </div>
+
+                    {% if not has_voted %}
+                    <span class="text-danger mt-1 d-block reset-stars" style="cursor:pointer;" title="Сбросить" data-name="decision_{{ d[0] }}_idea_{{ idea[0] }}">✖ Сбросить</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not has_voted %}
+    <div class="text-center">
+        <button class="btn btn-primary">Отправить голоса</button>
+    </div>
+    {% endif %}
+</form>
+
+{% if not has_voted %}
+<script>
+document.getElementById('decisionVoteForm')?.addEventListener('submit', function(e) {
+    const ideaGroups = {};
+
+    // Собираем выбранные оценки
+    document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+        const name = input.name;
+        const parts = name.split('_');
+        const ideaId = parts[3]; // decision_<id>_idea_<ideaId>
+        const value = parseInt(input.value || 0);
+
+        ideaGroups[ideaId] = (ideaGroups[ideaId] || 0) + value;
+    });
+
+    // Проверка: должно быть ровно 5 голосов на каждую идею
+    for (const ideaId in ideaGroups) {
+        if (ideaGroups[ideaId] !== 5) {
+            e.preventDefault();
+            alert(`Вы должны распределить ровно 5 голосов для каждой идеи.`);
+            return;
+        }
+    }
+});
+
+// Обработка сброса звёзд
+document.querySelectorAll('.reset-stars').forEach(button => {
+    button.addEventListener('click', () => {
+        const name = button.dataset.name;
+        const zeroInput = document.querySelector(`input[name="${name}"][value="0"]`);
+        if (zeroInput) {
+            zeroInput.checked = true;
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

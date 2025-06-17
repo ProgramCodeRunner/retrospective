@@ -1,0 +1,7 @@
+Flask
+flask-mysqldb
+mysqlclient
+pandas
+xlsxwriter
+gunicorn
+python-dotenv

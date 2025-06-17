@@ -1,0 +1,33 @@
+services:
+  web:
+    build: ./retro
+    container_name: flask-retro-app
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./retro:/app
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DB: retrospective
+    env_file:
+      - .env
+
+  db:
+    image: mysql:8.0
+    container_name: retro-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: retrospective
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./retro/db.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mysql-data:

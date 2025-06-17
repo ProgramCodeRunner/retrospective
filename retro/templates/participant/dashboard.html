@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Ретроспектива</h2>
+    <h2>Что было хорошо?</h2>
+    <form method="POST" action="{{ url_for('participant.submit_idea', idea_type=1) }}">
+        <div class="mb-3">
+            <label>Наименование:</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Описание:</label>
+            <textarea name="description" class="form-control" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Отправить</button>
+    </form>
+
+    <hr>
+
+    <h2>Что было плохо?</h2>
+    <form method="POST" action="{{ url_for('participant.submit_idea', idea_type=2) }}">
+        <div class="mb-3">
+            <label>Наименование:</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Описание:</label>
+            <textarea name="description" class="form-control" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Отправить</button>
+    </form>
+{% endblock %}

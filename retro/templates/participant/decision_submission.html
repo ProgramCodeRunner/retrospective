@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+
+    <h3 class="text-success">ТОП 3 "Что было хорошо"</h3>
+    <div class="mb-4">
+        {% for idea in good_ideas %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h5>{{ idea[1] }}</h5>
+                    <p>{{ idea[2] }}</p>
+                    <small>Голосов: {{ idea[3] }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" action="{{ url_for('participant.submit_decision') }}">
+        <h5>Добавить решение к хорошей идее:</h5>
+        <div class="mb-3">
+            <label>Выберите идею</label>
+            <select name="idea_id" class="form-select">
+                {% for i in good_idea_choices %}
+                    <option value="{{ i[0] }}">{{ i[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Наименование</label>
+            <input name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Описание</label>
+            <textarea name="description" class="form-control" rows="4" required></textarea>
+        </div>
+        <button class="btn btn-primary">Отправить решение</button>
+    </form>
+
+    <hr class="my-5">
+
+    <h3 class="text-danger">ТОП 3 "Что было плохо"</h3>
+    <div class="mb-4">
+        {% for idea in bad_ideas %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h5>{{ idea[1] }}</h5>
+                    <p>{{ idea[2] }}</p>
+                    <small>Голосов: {{ idea[3] }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" action="{{ url_for('participant.submit_decision') }}">
+        <h5>Добавить решение к плохой идее:</h5>
+        <div class="mb-3">
+            <label>Выберите идею</label>
+            <select name="idea_id" class="form-select">
+                {% for i in bad_idea_choices %}
+                    <option value="{{ i[0] }}">{{ i[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Наименование</label>
+            <input name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Описание</label>
+            <textarea name="description" class="form-control" rows="4" required></textarea>
+        </div>
+        <button class="btn btn-primary">Отправить решение</button>
+    </form>
+
+</div>
+{% endblock %}
