@@ -1,0 +1,125 @@
+.card h5, h2, h3 {
+    word-wrap: break-word;
+}
+
+table td,
+table th {
+    vertical-align: middle;
+}
+
+
+@media (min-width: 1440px) {
+    body {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1024px) {
+    h2, h3 {
+        font-size: 1.5rem;
+    }
+
+    table th, table td {
+        font-size: 0.9rem;
+    }
+
+    .card form,
+    .card h5 {
+        flex-direction: column;
+    }
+
+    .card form input,
+    .card form button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    h2, h3 {
+        font-size: 1.3rem;
+    }
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    form {
+        flex-direction: column !important;
+    }
+
+    form input,
+    form button {
+        width: 100% !important;
+    }
+}
+
+/* 📱 Мобильные — 425px */
+@media (max-width: 426px) {
+    .butt{
+      display: flex;
+      flex-direction: column;
+    }  
+
+    .card h5 {
+        font-size: 1rem;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    h2, h3 {
+        font-size: 1.1rem;
+    }
+
+    .btn, table th, table td {
+        font-size: 0.8rem;
+    }
+}
+
+
+@media (max-width: 992px) {
+  /* При сужении — вертикальное меню */
+  .navbar-collapse {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
+  .nav-link {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+
+  .nav-item.text-white {
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .nav-item strong {
+    display: block;
+    margin-top: 2px;
+  }
+}

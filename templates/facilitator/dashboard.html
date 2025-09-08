@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Тема ретроспективы -->
+<div class="card my-4 p-3">
+    <h5>Тема ретроспективы:
+        <span class="text-primary">
+            {{ topic if topic else 'не задана' }}
+        </span>
+    </h5>
+
+    <!-- Форма задания темы -->
+    <form method="POST" action="{{ url_for('facilitator.set_topic') }}" class="mb-2 d-flex gap-2">
+        <input type="text" name="topic" class="form-control" placeholder="Введите тему ретроспективы" required>
+        <button type="submit" class="btn btn-success">Задать тему</button>
+    </form>
+
+    <!-- Кнопка удаления темы -->
+    <form method="POST" action="{{ url_for('facilitator.delete_topic') }}">
+        <button type="submit" class="btn btn-danger">Удалить тему</button>
+    </form>
+</div>
+
+<h2>Управление этапами</h2>
+<hr>
+<!-- Сбор идей -->
+<form method="POST" action="{{ url_for('facilitator.toggle_session') }}"  class="mt-3">
+    {% if is_active %}
+        <button class="btn btn-danger">Остановить сбор + и -</button>
+    {% else %}
+        <button class="btn btn-success">Начать сбор + и -</button>
+    {% endif %}
+</form>
+
+<!-- Голосование -->
+<form method="POST" action="{{ url_for('facilitator.toggle_voting') }}" class="mt-3">
+    {% if voting_active %}
+        <button type="submit" class="btn btn-danger">Остановить голосование</button>
+    {% else %}
+        <button type="submit" class="btn btn-success">Начать голосование за + и -</button>
+    {% endif %}
+</form>
+
+<form method="POST" action="{{ url_for('facilitator.toggle_decision_collection') }}"  class="mt-3">
+    {% if collecting_decisions %}
+        <button class="btn btn-warning">Остановить сбор решений</button>
+    {% else %}
+        <button class="btn btn-success">Начать сбор решений идей</button>
+    {% endif %}
+</form>
+
+<form method="POST" action="{{ url_for('facilitator.toggle_voting_decision') }}"  class="mt-3">
+    {% if voting_decision_active %}
+        <button class="btn btn-danger">Остановить голосование за решения</button>
+    {% else %}
+        <button class="btn btn-success">Начать голосование за решения</button>
+    {% endif %}
+</form>
+
+<a href="{{ url_for('facilitator.report') }}" class="btn btn-info mt-3">Отчёт</a>
+
+<hr>
+
+<h2>Все идеи</h2>
+    <hr>
+    <!-- Хорошо -->
+    <div class="mb-5">
+        <h3 class="text-success">Что было хорошо?</h3>
+        <table class="table table-bordered table-striped w-100">
+            <thead class="table-success">
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Голоса</th>
+                    <th>Автор</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for idea in ideas if idea[4] == 1 %}
+                <tr>
+                    <td>{{ idea[0] }}</td>
+                    <td>{{ idea[1] }}</td>
+                    <td>{{ idea[2] }}</td>
+                    <td>{{ idea[3] }}</td>
+                    <td>{{ idea[5] }}</td>
+                    <td class="butt">
+                        <a href="{{ url_for('facilitator.edit_idea', idea_id=idea[0]) }}" class="btn btn-sm btn-warning" style="margin-bottom:5px;">Редактировать</a>
+                        <form action="{{ url_for('facilitator.delete_idea', idea_id=idea[0]) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить эту идею?')">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <!-- Плохо -->
+    <div class="mb-5">
+        <h3 class="text-danger">Что было плохо?</h3>
+        <table class="table table-bordered table-striped w-100">
+            <thead class="table-danger">
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Голоса</th>
+                    <th>Автор</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for idea in ideas if idea[4] == 2 %}
+                <tr>
+                    <td>{{ idea[0] }}</td>
+                    <td>{{ idea[1] }}</td>
+                    <td>{{ idea[2] }}</td>
+                    <td>{{ idea[3] }}</td>
+                    <td>{{ idea[5] }}</td>
+                    <td class="butt">
+                        <a href="{{ url_for('facilitator.edit_idea', idea_id=idea[0]) }}" class="btn btn-sm btn-warning" style="margin-bottom:5px;">Редактировать</a>
+                        <form action="{{ url_for('facilitator.delete_idea', idea_id=idea[0]) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить эту идею?')">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <!-- Решения -->
+    <div class="mb-5">
+        <h3 class="text-primary">Решения по идеям</h3>
+        <table class="table table-bordered table-striped w-100">
+           <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Идея</th>
+                    <th>Пользователь</th>
+                    <th>Наименование</th>
+                    <th>Описание</th>
+                    <th>Голоса</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in decisions %}
+                <tr>
+                    <td>{{ d[0] }}</td>
+                    <td>{{ d[2] }}</td>
+                    <td>{{ d[3] }}</td>
+                    <td>{{ d[4] }}</td>
+                    <td>{{ d[5] }}</td>
+                    <td>{{ d[6] }}</td>
+                    <td class="butt">
+                        <a href="{{ url_for('facilitator.edit_decision', decision_id=d[0]) }}" class="btn btn-sm btn-warning" style="margin-bottom:5px;">Редактировать</a>
+                        <a href="{{ url_for('facilitator.delete_decision', decision_id=d[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Удалить решение?');">Удалить</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

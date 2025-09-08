@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-center">Голосование за идеи</h2>
+
+<div class="alert alert-warning">
+  <ul class="mb-0">
+    <li>Вы можете отдать ровно <strong>5 голосов</strong> в блоке <strong>"Что было хорошо"</strong>.</li>
+    <li>Также вы можете отдать ровно <strong>5 голосов</strong> в блоке <strong>"Что было плохо"</strong>.</li>
+    <li>Нажмите на звёзды слева направо, чтобы поставить от 1 до 5 баллов идее.</li>
+    <li>Вы можете <strong>сбросить выбор</strong>, нажав на ✖ под звёздами.</li>
+    <li>После голосования изменения внести <strong>нельзя</strong>.</li>
+  </ul>
+</div>
+
+{% if has_voted %}
+<div class="alert alert-info text-center">Вы уже проголосовали. Спасибо!</div>
+{% else %}
+<form method="POST" action="{{ url_for('participant.submit_votes') }}" id="voteForm">
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Что было хорошо?</h4>
+        {% for idea in ideas if idea[1] == 1 %}
+        <div class="card my-2 p-3">
+            <h5>{{ idea[2] }}</h5>
+            <p>{{ idea[3] }}</p>
+            <div class="mt-2">
+                <div class="star-rating">
+                    {% for i in range(5, 0, -1) %}
+                    <input type="radio" name="plus_votes_{{ idea[0] }}" id="plus_star_{{ idea[0] }}_{{ i }}" value="{{ i }}" {% if has_voted %}disabled{% endif %}>
+                    <label for="plus_star_{{ idea[0] }}_{{ i }}">★</label>
+                    {% endfor %}
+                    <input type="radio" name="plus_votes_{{ idea[0] }}" id="plus_star_{{ idea[0] }}_0" value="0" checked style="display: none;" {% if has_voted %}disabled{% endif %}>
+                </div>
+                {% if not has_voted %}
+                <span class="text-danger mt-1 d-block reset-stars" style="cursor:pointer;" title="Сбросить" data-name="plus_votes_{{ idea[0] }}">✖ Сбросить</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+        <h4>Что было плохо?</h4>
+        {% for idea in ideas if idea[1] == 2 %}
+        <div class="card my-2 p-3">
+            <h5>{{ idea[2] }}</h5>
+            <p>{{ idea[3] }}</p>
+            <div class="mt-2">
+                <div class="star-rating">
+                    {% for i in range(5, 0, -1) %}
+                    <input type="radio" name="minus_votes_{{ idea[0] }}" id="minus_star_{{ idea[0] }}_{{ i }}" value="{{ i }}" {% if has_voted %}disabled{% endif %}>
+                    <label for="minus_star_{{ idea[0] }}_{{ i }}">★</label>
+                    {% endfor %}
+                    <input type="radio" name="minus_votes_{{ idea[0] }}" id="minus_star_{{ idea[0] }}_0" value="0" checked style="display: none;" {% if has_voted %}disabled{% endif %}>
+                </div>
+                {% if not has_voted %}
+                <span class="text-danger mt-1 d-block reset-stars" style="cursor:pointer;" title="Сбросить" data-name="minus_votes_{{ idea[0] }}">✖ Сбросить</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if not has_voted %}
+<div class="text-center mt-4">
+    <button type="submit" class="btn btn-success">Отправить голоса</button>
+</div>
+</form>
+{% endif %}
+
+<style>
+.star-rating {
+    direction: rtl;
+    display: inline-flex;
+    gap: 4px;
+}
+.star-rating input {
+    display: none;
+}
+.star-rating label {
+    font-size: 3rem;
+    color: #ccc;
+    cursor: pointer;
+}
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: gold;
+}
+</style>
+
+<script>
+// Подсчёт голосов
+document.getElementById('voteForm')?.addEventListener('submit', function(e) {
+    let plusTotal = 0, minusTotal = 0;
+
+    document.querySelectorAll('input[name^="plus_votes_"]:checked').forEach(input => {
+        plusTotal += parseInt(input.value || 0);
+    });
+
+    document.querySelectorAll('input[name^="minus_votes_"]:checked').forEach(input => {
+        minusTotal += parseInt(input.value || 0);
+    });
+
+    if (plusTotal !== 5) {
+        e.preventDefault();
+        alert('Вы должны распределить ровно 5 голосов в блоке "Что было хорошо".');
+        return;
+    }
+
+    if (minusTotal !== 5) {
+        e.preventDefault();
+        alert('Вы должны распределить ровно 5 голосов в блоке "Что было плохо".');
+        return;
+    }
+});
+
+// Сброс рейтинга
+document.querySelectorAll('.reset-stars').forEach(button => {
+    button.addEventListener('click', () => {
+        const name = button.dataset.name;
+        const zeroInput = document.querySelector(`input[name="${name}"][value="0"]`);
+        if (zeroInput) {
+            zeroInput.checked = true;
+        }
+    });
+});
+</script>
+{% endblock %}
