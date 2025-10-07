@@ -30,3 +30,8 @@
 4. Импортировать базу данных из файла retrospective/db.sql: Server -> Data Import -> Import from Self-Contained File : ../retrospective/db.sql -> Default Target Schema : retrospective -> Start Import
 5. Настройте параметры подключения в config.py
 6. Запустите app.py и перейдите по адресу http://127.0.0.1:5000/login
+
+Примечание: 
+Учетные данные администратора:
+- Логин: root
+- Пароль: root
